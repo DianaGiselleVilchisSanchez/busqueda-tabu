@@ -29,8 +29,7 @@ def evalua_ruta(ruta, coord):
     total = 0
     for i in range(len(ruta) - 1):
         total += distancia(coord[ruta[i]], coord[ruta[i + 1]])
-    total += distancia(coord[ruta[-1]], coord[ruta[0]])
-    return total
+    return total  # No sumamos la vuelta al inicio para respetar origen y destino
 
 def tabu_search(ruta_inicial, coord, temperatura, minima, velocidad):
     mejor_ruta = ruta_inicial[:]
@@ -39,14 +38,14 @@ def tabu_search(ruta_inicial, coord, temperatura, minima, velocidad):
     actual = ruta_inicial[:]
     actual_distancia = mejor_distancia
 
-    # tamaño de la lista tabú depende de "velocidad"
     lista_tabu = deque(maxlen=velocidad)
 
     iteraciones = int((temperatura - minima) / 0.1)
     for _ in range(iteraciones):
         vecinos = []
-        for i in range(len(actual)):
-            for j in range(i + 1, len(actual)):
+        # Solo permutar ciudades intermedias, no el origen (pos 0) ni destino (última pos)
+        for i in range(1, len(actual) - 1):
+            for j in range(i + 1, len(actual) - 1):
                 vecino = actual[:]
                 vecino[i], vecino[j] = vecino[j], vecino[i]
                 if vecino not in lista_tabu:
@@ -73,25 +72,35 @@ def index():
 
 @app.route("/optimizar", methods=["POST"])
 def optimizar():
-    data = request.get_json()
-    print("Datos recibidos:", data)
-
     try:
+        data = request.get_json()
         temperatura = float(data["temperatura"])
         minima = float(data["minima"])
         velocidad = int(data["velocidad"])
-    except (KeyError, ValueError) as e:
-        return jsonify({"error": "Datos inválidos", "detalle": str(e)}), 400
+        origen = data["origen"]
+        destino = data["destino"]
 
-    ciudades = list(coord.keys())
-    random.shuffle(ciudades)
+        # Validar origen y destino
+        if origen == destino:
+            return jsonify({"error": "El origen y destino no pueden ser la misma ciudad"}), 400
+        if origen not in coord or destino not in coord:
+            return jsonify({"error": "Ciudad de origen o destino inválida"}), 400
 
-    ruta_opt, dist_total = tabu_search(ciudades, coord, temperatura, minima, velocidad)
+        ciudades_intermedias = [c for c in coord.keys() if c != origen and c != destino]
+        random.shuffle(ciudades_intermedias)
 
-    return jsonify({
-        "ruta": ruta_opt,
-        "distancia": round(dist_total, 2)
-    })
+        ruta_inicial = [origen] + ciudades_intermedias + [destino]
+
+        ruta_opt, dist_total = tabu_search(ruta_inicial, coord, temperatura, minima, velocidad)
+
+        return jsonify({
+            "ruta": ruta_opt,
+            "distancia": round(dist_total, 2)
+        })
+
+    except Exception as e:
+        print("Error en optimizar:", e)
+        return jsonify({"error": "Error interno en el servidor", "detalle": str(e)}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

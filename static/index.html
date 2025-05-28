@@ -5,61 +5,166 @@
     <title>Optimización de Ruta - Búsqueda Tabú</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+            color: #4a2c4b;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
         }
+
+        .contenedor {
+            background-color: #fff0f6;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(233, 30, 99, 0.2);
+            padding: 30px 40px;
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
         h1 {
-            color: #333;
+            color: #ad1457;
+            text-shadow: 1px 1px 3px rgba(173, 20, 87, 0.6);
+            margin-bottom: 25px;
+            text-align: center;
         }
+
         label {
             display: block;
-            margin: 10px 0 5px;
-        }
-        input[type="number"] {
-            padding: 5px;
-            width: 200px;
-        }
-        button {
             margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            border: none;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 4px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #a21f40;
         }
+
+        select, input[type="number"] {
+            border: 2px solid #f48fb1;
+            border-radius: 12px;
+            padding: 8px 14px;
+            font-size: 1rem;
+            color: #4a2c4b;
+            outline: none;
+            transition: border-color 0.3s ease;
+            background-color: #fff0f6;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        select:focus, input[type="number"]:focus {
+            border-color: #e91e63;
+            background-color: #ffe4ec;
+        }
+
+        button {
+            margin-top: 25px;
+            width: 100%;
+            background-color: #e91e63;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            padding: 14px 0;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(233, 30, 99, 0.4);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #c2185b;
+            box-shadow: 0 6px 12px rgba(194, 24, 91, 0.6);
+        }
+
         #resultado {
-            margin-top: 30px;
-            background-color: #fff;
+            background-color: #fce4ec;
+            border-left: 6px solid #e91e63;
             padding: 20px;
-            border-left: 5px solid #007bff;
-            display: none;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(233, 30, 99, 0.3);
+            margin-top: 30px;
+            word-wrap: break-word;
+            color: #f728ab;
+        }
+
+        #resultado h3 {
+            margin-top: 0;
+            color: #ad1457;
+        }
+
+        #resultado p {
+            font-size: 1.1rem;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
-    <h1>Optimización de Ruta con Búsqueda Tabú</h1>
+    <div class="contenedor">
+        <h1>Optimización de Ruta con Búsqueda Tabú</h1>
 
-    <label for="temperatura">Temperatura inicial:</label>
-    <input type="number" id="temperatura" step="0.1" required>
+        <label for="origen">Ciudad de origen:</label>
+        <select id="origen" required>
+            <option value="">-- Seleccione origen --</option>
+            <option value="Jiloyork">Jiloyork</option>
+            <option value="Toluca">Toluca</option>
+            <option value="Atlacomulco">Atlacomulco</option>
+            <option value="Guadalajara">Guadalajara</option>
+            <option value="Monterrey">Monterrey</option>
+            <option value="QuintanaRoo">QuintanaRoo</option>
+            <option value="Michohacan">Michohacan</option>
+            <option value="Aguascalientes">Aguascalientes</option>
+            <option value="CDMX">CDMX</option>
+            <option value="QRO">QRO</option>
+        </select>
 
-    <label for="minima">Temperatura mínima:</label>
-    <input type="number" id="minima" step="0.1" required>
+        <label for="destino">Ciudad de destino:</label>
+        <select id="destino" required>
+            <option value="">-- Seleccione destino --</option>
+            <option value="Jiloyork">Jiloyork</option>
+            <option value="Toluca">Toluca</option>
+            <option value="Atlacomulco">Atlacomulco</option>
+            <option value="Guadalajara">Guadalajara</option>
+            <option value="Monterrey">Monterrey</option>
+            <option value="QuintanaRoo">QuintanaRoo</option>
+            <option value="Michohacan">Michohacan</option>
+            <option value="Aguascalientes">Aguascalientes</option>
+            <option value="CDMX">CDMX</option>
+            <option value="QRO">QRO</option>
+        </select>
 
-    <label for="velocidad">Velocidad (tamaño de lista tabú):</label>
-    <input type="number" id="velocidad" required>
+        <label for="temperatura">Temperatura inicial:</label>
+        <input type="number" id="temperatura" step="0.1" required>
 
-    <button onclick="optimizarRuta()">Optimizar Ruta</button>
+        <label for="minima">Temperatura mínima:</label>
+        <input type="number" id="minima" step="0.1" required>
 
-    <div id="resultado"></div>
+        <label for="velocidad">Velocidad (tamaño de lista tabú):</label>
+        <input type="number" id="velocidad" required>
+
+        <button onclick="optimizarRuta()">Optimizar Ruta</button>
+
+        <div id="resultado" style="display:none;"></div>
+    </div>
 
     <script>
         function optimizarRuta() {
-            const temperatura = document.getElementById("temperatura").value;
-            const minima = document.getElementById("minima").value;
-            const velocidad = document.getElementById("velocidad").value;
+            const origen = document.getElementById("origen").value;
+            const destino = document.getElementById("destino").value;
+            const temperatura = parseFloat(document.getElementById("temperatura").value);
+            const minima = parseFloat(document.getElementById("minima").value);
+            const velocidad = parseInt(document.getElementById("velocidad").value);
+
+            if (!origen || !destino) {
+                alert("Por favor, seleccione ciudad de origen y destino.");
+                return;
+            }
+            if (origen === destino) {
+                alert("La ciudad de origen y destino no pueden ser iguales.");
+                return;
+            }
 
             fetch("/optimizar", {
                 method: "POST",
@@ -67,6 +172,8 @@
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    origen: origen,
+                    destino: destino,
                     temperatura: temperatura,
                     minima: minima,
                     velocidad: velocidad
@@ -74,22 +181,19 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error("Error en la respuesta del servidor");
+                    return response.json().then(data => { throw new Error(data.error || "Error en la respuesta"); });
                 }
                 return response.json();
             })
             .then(data => {
                 const resultadoDiv = document.getElementById("resultado");
                 resultadoDiv.style.display = "block";
-                resultadoDiv.innerHTML = `
-                    <h2>Ruta Optimizada:</h2>
-                    <p><strong>Ruta:</strong> ${data.ruta.join(" → ")}</p>
-                    <p><strong>Distancia Total:</strong> ${data.distancia} unidades</p>
-                `;
+                resultadoDiv.innerHTML = `<h3>Ruta Optimizada:</h3>
+                                         <p>${data.ruta.join(" → ")}</p>
+                                         <p><strong>Distancia total:</strong> ${data.distancia}</p>`;
             })
             .catch(error => {
-                alert("Error al optimizar la ruta.");
-                console.error(error);
+                alert("Error: " + error.message);
             });
         }
     </script>
